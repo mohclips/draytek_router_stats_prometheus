@@ -1,0 +1,6 @@
+__pycache__/**
+config.py
+config.env
+*.exp
+stats.eg
+get_stats.py

@@ -1,0 +1,18 @@
+version: '2.4'
+
+services:
+
+  router_stats:
+    build: .
+    tty: true
+    container_name: router_stats
+    # restart always = if unhealthy re-start the container
+    restart: always
+
+    ports:
+      # outside to inside
+      - "8001:8001"
+      - "8081:8081"
+ 
+    env_file:
+      - config.env
