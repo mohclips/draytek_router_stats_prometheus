@@ -7,6 +7,7 @@ RUN set -eux; \
     pip install prometheus_client pexpect ttp; \
     apt update; \
     apt-get install -y --no-install-recommends \
+        curl \
         telnet \
         && rm -rf /var/lib/apt/lists/* ; \
     echo "Done"
