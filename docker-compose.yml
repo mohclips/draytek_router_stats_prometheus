@@ -11,8 +11,8 @@ services:
 
     ports:
       # outside to inside
-      - "8001:8001"
-      - "8081:8081"
+      - "8003:8003"
+      - "8083:8083"
  
     env_file:
       - config.env
