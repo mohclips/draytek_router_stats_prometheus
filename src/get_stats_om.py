@@ -24,7 +24,7 @@ from ttp import ttp # templating
 
 CUSTOM_COUNTERS = {
     'ne_LOS': 'Loss Of Signal count',
-    'ne_LOS': 'Loss Of Frame count',
+    'ne_LOF': 'Loss Of Frame count',
     'ne_LPR': 'Loss Of Power count',
     'ne_LOM': 'Loss Of Margin count',
     'ne_NCD': 'No Cell Delineation failure count',
