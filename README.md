@@ -4,7 +4,7 @@ I had a lot of line trouble lately.  I knew the router provided the stats but it
 Prometheus and Grafana seemed the best idea as i had these already in use watching my docker container stats.
 # Summary
 
-A python script to read the detailed DrayTek router stats.
+A python script to read the detailed DrayTek router stats.  You can think of this as a proxy to the router stats for Prometheus.
 
 The following stats are recorded and presented as Open Metrics (Prometheus) stats (those that can be used as counters and gauges)
 ```
@@ -43,7 +43,9 @@ The following stats are recorded and presented as Open Metrics (Prometheus) stat
 
 # How it works
 
-The script requires a python .env config file:
+## Environment Variables
+
+The script requires some environment variables to be loaded, i do this in docker using a .env config file:
 
 ```
 IP=192.168.0.1
@@ -55,12 +57,16 @@ TELNET_CMD=/usr/bin/telnet
 SPAWN_TIMEOUT=5
 ```
 
+## Telnet
+
 The script spawns a telnet connection to the router to gather the stats from the CLI (It could be easily changed to use SSH)
 It does this in around 1/2second. Which is plenty fast enough for me.
 
 The remote prometheus call to `/metrics`, fires off the telnet request, so this will poll as fast as you want it to.   I am doing this every 5mins.
 
-The bulk of the work is done by [Python Expect](https://pexpect.readthedocs.io/en/stable/), [Template Text Parser](https://ttp.readthedocs.io/en/latest/) and of course the [Prometheus Python Client](https://github.com/prometheus/client_python).
+## Python Modules
+
+The bulk of the work is done by [Python Expect](https://pexpect.readthedocs.io/en/stable/) (to gather the stats), [Template Text Parser](https://ttp.readthedocs.io/en/latest/) (to parse the stats) and of course the [Prometheus Python Client](https://github.com/prometheus/client_python) (to make them available to Prometheus).
 
 # Prometheus
 
@@ -81,13 +87,13 @@ Set as a target as normal.
 
 # Grafana
 
-A grafana dashboard is included. Import as normal.  It is a work in progress.  You can see in the graphs the blip we had at around 9pm - this is where we noticed slight buffering on the TV.
+A grafana dashboard is included. Import as normal.  It is a work in progress.  You can see in the graph image above the blip we had at around 9pm - this is where we noticed slight buffering on the TV and the router sent an email alert that the line was down.
 
 ![grafana dashboard](images/grafana.png)
 
 # Docker and Docker Compose
 
-There is a docker-compose file which creates an image.  This is how i prefer to run my homegrown software.  It runs as aroud 134MB based on `python3:slim.` You may find it useful.
+There is a docker-compose file which creates a docker image (from the included Dockerfile).  This is how i prefer to run my homegrown software.  It runs at around 134MB based on `python3:slim.` You may find it useful.
 # Sources
 
 - https://www.draytek.co.uk/support/guides/kb-dsl-status-more
