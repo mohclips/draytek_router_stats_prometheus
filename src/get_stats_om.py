@@ -57,6 +57,8 @@ FE_SES	 = Gauge('router_fe_ses','Severely Errored Seconds - Line far-end (SES-LF
 FE_LOSS  = Gauge('router_fe_loss','Loss Of Signal Seconds')
 FE_UAS	 = Gauge('router_fe_uas','Un-Available Seconds - Line (UAS-L) & Unavailable Seconds - Line far-end (UAS-LFE)')
 
+DSL_UPDOWN = Gauge('router_up_down','1=up "SHOWTIME", 0=down anything else', ['status'])
+
 #TODO: add some info gauges for the static text 
 
 ext_template = """
@@ -93,6 +95,19 @@ ext_template = """
 </group>
 """
 
+wan_template = """
+<group name="wan">
+{{ignore}}
+Link Status: {{link_status}}
+Firmware Version: {{ignore}}
+VDSL2 Profile: {{ignore}}
+Basic	Status	Upstream	Downstream {{ignore}}
+Actual Data Rate: {{ignore}}
+SNR: {{ignore}}
+G.Vectoring Status:	{{ignore}}
+</group>
+"""
+
 class RouterCollector(object):
 #
 # Prometheus stuff, called when ever the METRICS_PORT is opened
@@ -111,7 +126,25 @@ class RouterCollector(object):
             child.expect ("Password: ")
             child.send (config.PASSWORD+"\r")
             child.expect ("DrayTek> ")
+
+            child.send ("wan vdsl show basic\r")
+            child.expect ("DrayTek> ")
+            wan_results = child.before
+            wan_results=str(wan_results.replace(b'\r',b''),'ascii') # convert to ascii string for parsing
+
+            parser = ttp(data=wan_results, template=wan_template, log_level='INFO')
+            parser.parse() # extract the info
+            wm = parser.result(format='raw')[0][0]
+
+            link_status = wm['wan']['link_status']
+            if link_status == "SHOWTIME":
+                DSL_UPDOWN.labels(link_status).set(1)
+            else:
+                DSL_UPDOWN.labels(link_status).set(0)
             
+            
+        
+
             child.send ("vdsl status more\r")
             child.expect ("DrayTek> ")
             ext_results = child.before
